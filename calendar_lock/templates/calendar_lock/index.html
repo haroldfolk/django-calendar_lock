@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar Locked</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel panel-body">
+        <form method="post">
+            {% csrf_token %}
+            <div id="div-datepicker"></div>
+            <input type="text" id="datepicker" size="30" readonly="readonly" class="form-group" hidden required
+                   name="date"><br>
+            <input type="text" name="reason" size="200" required class="form-inline col-md-2"
+                   placeholder="Enter reason to lock date">
+            <button type="submit" class="btn btn-info">Lock date</button>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-success">
+    <div class="panel panel-body">
+        {% for date_locked in dates_locked %}
+            <div class="jumbotron">Fecha: {{ date_locked.date_locked }}, Motivo: {{ date_locked.reason_locked }}</div>
+        {% endfor %}
+
+    </div>
+</div>
+</body>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        var dates = [];
+        {% for date_locked in dates_locked %}
+            dates.push("{{ date_locked.date_locked.day }}"+"-"+"{{ date_locked.date_locked.month }}"+"-"+"{{ date_locked.date_locked.year }}");
+            console.log("{{ date_locked.date_locked.day }}"+"-"+"{{ date_locked.date_locked.month }}"+"-"+"{{ date_locked.date_locked.year }}");
+        {% endfor %}
+        function unavailable(date) {
+            dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+            if ($.inArray(dmy, dates) == -1) {
+                return [true, ""];
+            } else {
+                return [false, "", "Unavailable"];
+            }
+        }
+
+        $('#div-datepicker').datepicker({
+            inline: true,
+            altField: '#datepicker',
+            dateFormat: 'yy-mm-dd',
+            beforeShowDay: unavailable
+        });
+        $('#div-datepicker').datepicker({
+            beforeShowDay: function (date) {
+                var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
+                return [array.indexOf(string) == -1]
+            }
+        })
+        $('#datepicker').change(function () {
+            $('#div-datepicker').datepicker('setDate', $(this).val());
+        });
+
+
+    })
+
+</script>
+</html>
